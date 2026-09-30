@@ -8,12 +8,18 @@ function Home() {
   return (
     <>
       <Hero />
+
       <RoomSearch />
-      <Rooms />
+
+      {/* Featured Rooms */}
+      <Rooms limit={3} />
+
       <Statistics />
+
       <Testimonials />
     </>
   );
 }
 
 export default Home;
+

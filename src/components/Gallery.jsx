@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const galleryImages = [
   {
     id: 1,
@@ -38,6 +40,8 @@ const galleryImages = [
 ];
 
 function Gallery() {
+  const [selectedImage, setSelectedImage] = useState(null);
+
   return (
     <section className="gallery-section" id="gallery">
       <div className="gallery-container">
@@ -54,8 +58,13 @@ function Gallery() {
         </div>
 
         <div className="gallery-grid">
+
           {galleryImages.map((item) => (
-            <div className="gallery-item" key={item.id}>
+            <div
+              className="gallery-item"
+              key={item.id}
+              onClick={() => setSelectedImage(item)}
+            >
 
               <img
                 src={item.image}
@@ -65,14 +74,49 @@ function Gallery() {
 
               <div className="gallery-overlay">
                 <h3>{item.title}</h3>
-                <span>View Gallery</span>
+                <span>View Image</span>
               </div>
 
             </div>
           ))}
+
         </div>
 
       </div>
+
+      {/* Image Lightbox */}
+
+      {selectedImage && (
+        <div
+          className="gallery-lightbox"
+          onClick={() => setSelectedImage(null)}
+        >
+
+          <button
+            className="gallery-close"
+            onClick={() => setSelectedImage(null)}
+            aria-label="Close image"
+          >
+            ×
+          </button>
+
+          <div
+            className="gallery-lightbox-content"
+            onClick={(event) => event.stopPropagation()}
+          >
+
+            <img
+              src={selectedImage.image}
+              alt={selectedImage.title}
+            />
+
+            <h3>{selectedImage.title}</h3>
+
+          </div>
+
+        </div>
+      )}
+
     </section>
   );
 }

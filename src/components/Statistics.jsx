@@ -1,64 +1,86 @@
-const statistics = [
-  {
-    id: 1,
-    number: 500,
-    suffix: "+",
-    label: "Luxury Rooms",
-  },
-  {
-    id: 2,
-    number: 50000,
-    suffix: "+",
-    label: "Guests Served",
-  },
-  {
-    id: 3,
-    number: 100,
-    suffix: "+",
-    label: "Staff Members",
-  },
-  {
-    id: 4,
-    number: 24,
-    suffix: "/7",
-    label: "Customer Support",
-  },
-];
-
 function Statistics() {
+  const statistics = [
+    {
+      id: 1,
+      number: "50+",
+      title: "Luxury Rooms",
+      description:
+        "Comfortable rooms designed for a relaxing and memorable stay.",
+    },
+    {
+      id: 2,
+      number: "2,500+",
+      title: "Guests Served",
+      description:
+        "Trusted by guests from Nepal and around the world.",
+    },
+    {
+      id: 3,
+      number: "35+",
+      title: "Staff Members",
+      description:
+        "A dedicated team committed to excellent hospitality.",
+    },
+    {
+      id: 4,
+      number: "24/7",
+      title: "Customer Support",
+      description:
+        "Our team is available around the clock to assist you.",
+    },
+  ];
+
   return (
     <section className="statistics-section">
+
       <div className="statistics-container">
 
-        <div className="statistics-heading">
+        <div className="section-heading statistics-heading">
+
           <p>WHY CHOOSE US</p>
-          <h2>Our Numbers Speak for Us</h2>
+
+          <h2>
+            Our Numbers Speak for Us
+          </h2>
+
+          <span>
+            At Sunset Paradise Resort, we combine comfort,
+            quality, and exceptional hospitality to create
+            unforgettable experiences.
+          </span>
+
         </div>
+
 
         <div className="statistics-grid">
 
           {statistics.map((stat) => (
-            <div className="statistic-card" key={stat.id}>
 
-              <div className="statistic-number">
-                <span
-                  className="counter"
-                  data-target={stat.number}
-                >
-                  0
-                </span>
+            <div
+              className="stat-card"
+              key={stat.id}
+            >
 
-                <span>{stat.suffix}</span>
+              <div className="stat-number">
+                {stat.number}
               </div>
 
-              <p>{stat.label}</p>
+              <h3>
+                {stat.title}
+              </h3>
+
+              <p>
+                {stat.description}
+              </p>
 
             </div>
+
           ))}
 
         </div>
 
       </div>
+
     </section>
   );
 }

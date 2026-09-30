@@ -1,20 +1,68 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    alert(`Welcome back! Login attempted with ${email}`);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Login failed.");
+        return;
+      }
+
+      // Save logged-in user
+      localStorage.setItem(
+        "sunsetUser",
+        JSON.stringify(data.user)
+      );
+
+      // Immediately notify Navbar that the user has logged in
+      window.dispatchEvent(new Event("userLogin"));
+
+      setMessage("Login successful!");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+    } catch (error) {
+      console.error("Login error:", error);
+
+      setError("Unable to connect to the server.");
+    }
   };
 
   return (
     <section className="auth-page">
-
       <div className="auth-container">
+
+        {/* Left Image Section */}
 
         <div className="auth-image">
           <div className="auth-image-content">
@@ -26,6 +74,8 @@ function Login() {
             </p>
           </div>
         </div>
+
+        {/* Right Login Form */}
 
         <div className="auth-form-container">
 
@@ -41,6 +91,8 @@ function Login() {
 
           <form onSubmit={handleSubmit}>
 
+            {/* Email */}
+
             <div className="form-group">
               <label htmlFor="login-email">
                 Email Address
@@ -51,10 +103,14 @@ function Login() {
                 id="login-email"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
                 required
               />
             </div>
+
+            {/* Password */}
 
             <div className="form-group">
               <label htmlFor="login-password">
@@ -66,21 +122,30 @@ function Login() {
                 id="login-password"
                 placeholder="Enter your password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
                 required
               />
             </div>
 
-            <div className="auth-options">
-              <label>
-                <input type="checkbox" />
-                Remember me
-              </label>
+            {/* Error Message */}
 
-              <a href="#forgot-password">
-                Forgot Password?
-              </a>
-            </div>
+            {error && (
+              <p className="auth-error">
+                {error}
+              </p>
+            )}
+
+            {/* Success Message */}
+
+            {message && (
+              <p className="auth-success">
+                {message}
+              </p>
+            )}
+
+            {/* Login Button */}
 
             <button
               type="submit"
@@ -91,10 +156,11 @@ function Login() {
 
           </form>
 
+          {/* Register Link */}
+
           <div className="auth-footer">
             <p>
-              Don't have an account?
-              {" "}
+              Don't have an account?{" "}
               <Link to="/register">
                 Register
               </Link>
@@ -102,11 +168,10 @@ function Login() {
           </div>
 
         </div>
-
       </div>
-
     </section>
   );
 }
 
 export default Login;
+

@@ -1,10 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-// Pages
 import Home from "./pages/Home";
 import RoomsPage from "./pages/RoomsPage";
 import ServicesPage from "./pages/ServicesPage";
@@ -14,6 +12,7 @@ import BookingPage from "./pages/BookingPage";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ServiceDetails from "./pages/ServiceDetails";
 
 function App() {
   return (
@@ -28,6 +27,11 @@ function App() {
         <Route path="/rooms" element={<RoomsPage />} />
 
         <Route path="/services" element={<ServicesPage />} />
+
+        <Route
+          path="/services/:serviceId"
+          element={<ServiceDetails />}
+        />
 
         <Route path="/facilities" element={<FacilitiesPage />} />
 

@@ -1,137 +1,215 @@
-const rooms = [
-  {
-    id: 1,
-    name: "Deluxe Ocean View Room",
-    type: "Deluxe Room",
-    price: 18000,
-    image:
-      "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=80",
-    facilities: "King Bed • Wi-Fi • Ocean View",
-    available: true,
-  },
-  {
-    id: 2,
-    name: "Executive Suite",
-    type: "Suite Room",
-    price: 28000,
-    image:
-      "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=80",
-    facilities: "King Bed • Living Room • Balcony",
-    available: true,
-  },
-  {
-    id: 3,
-    name: "Family Room",
-    type: "Family Room",
-    price: 22000,
-    image:
-      "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=900&q=80",
-    facilities: "2 Beds • Wi-Fi • Breakfast",
-    available: true,
-  },
-  {
-    id: 4,
-    name: "Premium Double Room",
-    type: "Double Room",
-    price: 16000,
-    image:
-      "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=900&q=80",
-    facilities: "Double Bed • TV • Wi-Fi",
-    available: true,
-  },
-  {
-    id: 5,
-    name: "VIP Presidential Suite",
-    type: "VIP Room",
-    price: 50000,
-    image:
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80",
-    facilities: "Luxury Bed • Jacuzzi • Lounge",
-    available: false,
-  },
-  {
-    id: 6,
-    name: "Standard Single Room",
-    type: "Single Room",
-    price: 10000,
-    image:
-      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=900&q=80",
-    facilities: "Single Bed • TV • Wi-Fi",
-    available: true,
-  },
-];
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-function Rooms() {
+function Rooms({ limit }) {
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/rooms"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.message || "Unable to load rooms.");
+          return;
+        }
+
+        setRooms(data);
+      } catch (error) {
+        console.error("Error loading rooms:", error);
+
+        setError(
+          "Unable to connect to the server. Please check that the backend is running."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  const getRoomType = (type) => {
+    const roomTypes = {
+      single: "Single Room",
+      double: "Double Room",
+      deluxe: "Deluxe Room",
+      family: "Family Room",
+      suite: "Suite Room",
+      vip: "VIP Room",
+    };
+
+    return roomTypes[type] || type;
+  };
+
+  const getRoomFeatures = (type) => {
+    const features = {
+      single: "Single Bed • TV • Wi-Fi",
+      double: "Double Bed • TV • Wi-Fi",
+      deluxe: "King Bed • Wi-Fi • Ocean View",
+      family: "2 Beds • Wi-Fi • Breakfast",
+      suite: "King Bed • Living Room • Balcony",
+      vip: "Luxury Bed • Jacuzzi • Lounge",
+    };
+
+    return features[type] || "Comfortable Stay • Wi-Fi";
+  };
+
+  // Show only the requested number of rooms
+  const displayedRooms = limit
+    ? rooms.slice(0, limit)
+    : rooms;
+
   return (
     <section className="rooms-section" id="rooms">
       <div className="rooms-container">
 
+        {/* Heading */}
+
         <div className="section-heading">
           <p>OUR ACCOMMODATION</p>
 
-          <h2>Featured Rooms</h2>
+          <h2>
+            {limit ? "Featured Rooms" : "Our Rooms"}
+          </h2>
 
           <span>
-            Discover comfortable and elegant rooms designed for a relaxing stay.
+            Discover comfortable and elegant rooms designed
+            for a relaxing stay.
           </span>
         </div>
 
-        <div className="rooms-grid">
-          {rooms.map((room) => (
-            <article className="room-card" key={room.id}>
+        {/* Loading */}
 
-              <div className="room-image-container">
-                <img
-                  src={room.image}
-                  alt={room.name}
-                  className="room-image"
-                />
+        {loading && (
+          <p style={{ textAlign: "center" }}>
+            Loading rooms...
+          </p>
+        )}
 
-                <span
-                  className={
-                    room.available
-                      ? "availability available"
-                      : "availability unavailable"
-                  }
-                >
-                  {room.available ? "Available" : "Fully Booked"}
-                </span>
-              </div>
+        {/* Error */}
 
-              <div className="room-content">
+        {error && (
+          <p
+            className="auth-error"
+            style={{ textAlign: "center" }}
+          >
+            {error}
+          </p>
+        )}
 
-                <p className="room-type">{room.type}</p>
+        {/* Rooms Grid */}
 
-                <h3>{room.name}</h3>
+        {!loading && !error && (
+          <div className="rooms-grid">
 
-                <p className="room-facilities">
-                  {room.facilities}
-                </p>
+            {displayedRooms.map((room) => (
+              <article
+                className="room-card"
+                key={room._id}
+              >
 
-                <div className="room-bottom">
+                {/* Room Image */}
 
-                  <div className="room-price">
-                    <strong>
-                      Rs. {room.price.toLocaleString()}
-                    </strong>
+                <div className="room-image-container">
 
-                    <span>/ night</span>
-                  </div>
+                  <img
+                    src={room.image}
+                    alt={room.name}
+                    className="room-image"
+                  />
 
-                  <button
-                    className="room-book-btn"
-                    disabled={!room.available}
-                  >
-                    {room.available ? "Book Now" : "Unavailable"}
-                  </button>
+                  <span className="room-status">
+                    {room.available
+                      ? "Available"
+                      : "Fully Booked"}
+                  </span>
 
                 </div>
 
-              </div>
+                {/* Room Content */}
 
-            </article>
-          ))}
-        </div>
+                <div className="room-content">
+
+                  <span className="room-type">
+                    {getRoomType(room.type)}
+                  </span>
+
+                  <h3>
+                    {room.name}
+                  </h3>
+
+                  <p className="room-features">
+                    {getRoomFeatures(room.type)}
+                  </p>
+
+                  {/* Price */}
+
+                  <div className="room-bottom">
+
+                    <div className="room-price">
+
+                      <strong>
+                        Rs. {room.price.toLocaleString()}
+                      </strong>
+
+                      <span>
+                        / night
+                      </span>
+
+                    </div>
+
+                    {/* Book Button */}
+
+                    {room.available ? (
+                      <Link
+                        to="/booking"
+                        className="room-book-btn"
+                      >
+                        Book Now
+                      </Link>
+                    ) : (
+                      <button
+                        className="room-book-btn"
+                        disabled
+                      >
+                        Unavailable
+                      </button>
+                    )}
+
+                  </div>
+
+                </div>
+
+              </article>
+            ))}
+
+          </div>
+        )}
+
+        {/* View All Rooms */}
+
+        {!loading && !error && limit && rooms.length > limit && (
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "30px",
+            }}
+          >
+            <Link
+              to="/rooms"
+              className="room-book-btn"
+            >
+              View All Rooms
+            </Link>
+          </div>
+        )}
 
       </div>
     </section>
@@ -139,3 +217,4 @@ function Rooms() {
 }
 
 export default Rooms;
+

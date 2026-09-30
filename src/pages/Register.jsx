@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -9,6 +11,9 @@ function Register() {
     password: "",
     confirmPassword: "",
   });
+
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -19,26 +24,65 @@ function Register() {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
+    setMessage("");
+    setError("");
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+      setError("Passwords do not match.");
       return;
     }
 
-    alert(`Account created successfully for ${formData.fullName}!`);
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Registration failed.");
+        return;
+      }
+
+      setMessage("Account created successfully!");
+
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch (error) {
+      setError("Unable to connect to the server.");
+    }
   };
 
   return (
     <section className="auth-page">
-
       <div className="auth-container">
-
         <div className="auth-image">
           <div className="auth-image-content">
             <h2>Join Us</h2>
-
             <p>
               Create your Sunset Paradise Resort account
               and make your next stay unforgettable.
@@ -47,24 +91,15 @@ function Register() {
         </div>
 
         <div className="auth-form-container">
-
           <div className="auth-header">
             <p>SUNSET PARADISE RESORT</p>
-
             <h1>Create Account</h1>
-
-            <span>
-              Register for a new account
-            </span>
+            <span>Register for a new account</span>
           </div>
 
           <form onSubmit={handleSubmit}>
-
             <div className="form-group">
-              <label htmlFor="fullName">
-                Full Name
-              </label>
-
+              <label htmlFor="fullName">Full Name</label>
               <input
                 type="text"
                 id="fullName"
@@ -77,10 +112,7 @@ function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="register-email">
-                Email Address
-              </label>
-
+              <label htmlFor="register-email">Email Address</label>
               <input
                 type="email"
                 id="register-email"
@@ -93,10 +125,7 @@ function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">
-                Phone Number
-              </label>
-
+              <label htmlFor="phone">Phone Number</label>
               <input
                 type="tel"
                 id="phone"
@@ -109,10 +138,7 @@ function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="register-password">
-                Password
-              </label>
-
+              <label htmlFor="register-password">Password</label>
               <input
                 type="password"
                 id="register-password"
@@ -125,10 +151,7 @@ function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="confirmPassword">
-                Confirm Password
-              </label>
-
+              <label htmlFor="confirmPassword">Confirm Password</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -140,29 +163,22 @@ function Register() {
               />
             </div>
 
-            <button
-              type="submit"
-              className="auth-submit-btn"
-            >
+            {error && <p className="auth-error">{error}</p>}
+
+            {message && <p className="auth-success">{message}</p>}
+
+            <button type="submit" className="auth-submit-btn">
               Create Account
             </button>
-
           </form>
 
           <div className="auth-footer">
             <p>
-              Already have an account?
-              {" "}
-              <Link to="/login">
-                Login
-              </Link>
+              Already have an account? <Link to="/login">Login</Link>
             </p>
           </div>
-
         </div>
-
       </div>
-
     </section>
   );
 }
